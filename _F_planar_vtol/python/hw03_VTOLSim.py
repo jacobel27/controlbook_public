@@ -9,16 +9,17 @@ from VTOLDynamics import VTOLDynamics
 vtol = VTOLDynamics()
 z_reference = signalGenerator(amplitude=0.5, frequency=0.1)
 h_reference = signalGenerator(amplitude=0.5, frequency=0.1, y_offset=1.0)
-
-zRef = signalGenerator(amplitude=4, frequency=0.1, y_offset=5)
-hRef = signalGenerator(amplitude=2, frequency=0.1, y_offset=2)
-thetaRef = signalGenerator(amplitude=np.pi/8, frequency=0.5, y_offset=0)
+force = signalGenerator(amplitude=20, frequency=1.0)
+torque = signalGenerator(amplitude=0.00, frequency=1.0, y_offset=0.0)
 
 fRef = signalGenerator(amplitude=5, frequency=0.5)
 tauRef = signalGenerator(amplitude=5, frequency=0.5)
 
 animation = VTOLAnimation()
 dataPlot = dataPlotter()
+
+right_motor = []
+left_motor = []
 
 t = P.t_start
 while t < P.t_end:
@@ -29,22 +30,24 @@ while t < P.t_end:
     while t < t_next_plot:
     
         # set variables
-        z = zRef.sin(t)
-        h = hRef.square(t)
-        theta = thetaRef.sin(t)
+        #z = zRef.sin(t)
+        #h = hRef.square(t)
+        #theta = thetaRef.sin(t)
 
-        z_r = z_reference.sin(t)
-        h_r = h_reference.square(t)
-        f = fRef.sawtooth(t)
-        tau = tauRef.sawtooth(t)
-        motor_thrusts = P.mixing * np.array([[f], [tau]])
+        z_ref = z_reference.square(t)
+        h_ref = h_reference.sin(t)
+        f = force.sin(t)
+        tau = torque.sin(t)
+        motor_thrusts = P.mixing @ np.array([[f], [tau]])
+        right_motor.append(motor_thrusts[0,0])
+        left_motor.append(motor_thrusts[1,0])
         y = vtol.update(motor_thrusts)
         t = t + P.Ts  # advance time by Ts
 
     
     # update animation
-    animation.update(vtol.state, z_r)
-    dataPlot.update(t, vtol.state, z_r, h_r, motor_thrusts[0], motor_thrusts[1])
+    animation.update(vtol.state, z_ref)
+    dataPlot.update(t, vtol.state, z_ref, h_ref, f, tau)
     
     t = t + P.t_plot  # advance time by t_plot
     plt.pause(0.001)
