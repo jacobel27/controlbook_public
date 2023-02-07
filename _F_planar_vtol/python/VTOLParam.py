@@ -41,5 +41,3 @@ fmax = 100.0  # Max Force, N
 # mixing matrix
 mixing = np.linalg.inv(np.array([[1.0, 1.0], [d, -d]]))
 
-
-

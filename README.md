@@ -29,7 +29,7 @@ Hardcopy available on [Amazon](https://www.amazon.com/Introduction-Feedback-Cont
 | Chapter 6 - State Space Models            | [chapter6.pdf](https://drive.google.com/file/d/1qr_P4s65w9PvPU8GiBhgGGHoBGeE0ZWd/view?usp=sharing)  | [chapter6.pptx](https://docs.google.com/presentation/d/1AI8FVqTYM8W1slYB6TLXmVs0Ih1o7BLq/edit?usp=sharing&ouid=115325376918178448854&rtpof=true&sd=true)  | Jan 2023 |
 | Chapter 7 - Second Order Systems          | [chapter7.pdf](https://drive.google.com/file/d/1AKxaAxtgJps_CaCiwF3VseUzWk15Omo6/view?usp=sharing)  | [chapter7.pptx](https://docs.google.com/presentation/d/1qa7zVWeXmlwrV7rSMSs3gUZ01fEqKUUr/edit?usp=sharing&ouid=115325376918178448854&rtpof=true&sd=true)  | Jan 2023 |
 | Chapter 8 - Second Order Design           | [chapter8.pdf](https://drive.google.com/file/d/1r9kbpxmI_UinmSa4cV2MQtXk3uWdb29l/view?usp=sharing)  | [chapter8.pptx](https://docs.google.com/presentation/d/1AQSjAgWB67AWLuEF-j9jAQA4T2-uorxg/edit?usp=sharing&ouid=115325376918178448854&rtpof=true&sd=true)  | Jan 2023 |
-| Chapter 9 - Integrators                   | [chapter9.pdf]()  | [chapter9.pptx]()  |  |
+| Chapter 9 - Integrators                   | [chapter9.pdf](https://drive.google.com/file/d/1rS9nYeiaxyOx-9L0e7a0JWNOBxlurVRE/view?usp=sharing)  | [chapter9.pptx](https://docs.google.com/presentation/d/1AiYayPKykU5U4BMv4uaPOSIg2SlJwsy3/edit?usp=sharing&ouid=115325376918178448854&rtpof=true&sd=true)  | Feb 2023 |
 | Chapter 10 - Digital PID                  | [chapter10.pdf]() | [chapter10.pptx]() |  |
 | Chapter 11 - Full State Feedback          | [chapter11.pdf]() | [chapter11.pptx]() |  |
 | Chapter 12 - Full State with Integrators  | [chapter12.pdf]() | [chapter12.pptx]() |  |
@@ -40,15 +40,19 @@ Hardcopy available on [Amazon](https://www.amazon.com/Introduction-Feedback-Cont
 | Chapter 17 - Robustness Margins           | [chapter17.pdf](https://drive.google.com/file/d/1EOx9_QtNbere-bT1zuSy8or5f4SPR57C/view?usp=sharing) | [chapter17.pptx](https://docs.google.com/presentation/d/1ENBydG22LrYo_jAXgsT7P20unb50yNVK/edit?usp=sharing&ouid=115325376918178448854&rtpof=true&sd=true) | Nov 2021 |
 | Chapter 18 - Compensator Design           | [chapter18.pdf](https://drive.google.com/file/d/1EMXKKlGUF-OCkaB1ffKkopsRwKZjPI7i/view?usp=sharing) | [chapter18.pptx](https://docs.google.com/presentation/d/1EF8tgs-kEVPWVJt7G7b3sa-eP1eNIGmJ/edit?usp=sharing&ouid=115325376918178448854&rtpof=true&sd=true) | Nov 2021 |
 
-# Jupyter Notebooks
-
-The Jupyter notebooks in this repository were developed by Dr. Robert Leishman at Air Force Institute of Technology.
-
-They are designed to be run in google colab.
 
 # Homework Solutions
 
 This Gitlab account contains complete python, matlab, and simulink solutions to the three design problems presented in the book.  We will be actively maintaining the Python solutions.
+
+# Hummingbird Lab
+The lab description and assignments are described in the hummingbird lab manual, which can be accessed below.  During Winter 2023, the manual will be under construction and will be updated frequently.  You should re-download the manual before doing each lab.
+
+[PDF Lab Manual](https://drive.google.com/file/d/1DzFGTip7jdT5Q33OeuZrK28yvU95lOPe/view?usp=sharing)
+
+Template files for the hummingbird simulation are contained in the GitHub directory "_hummingbird_sim."
+
+Template files for the hummingbird hardware lab are contained in the GitHub directory "_hummingbird_lab."
 
 ## Prerequisites
 
@@ -76,29 +80,10 @@ If you are using pycharm, open Settings>Project:python>Python Interpreter.  Make
 
 ![Alt text](_images/pythonpackages.png?raw=true "Title")
 
-# Hummingbird Lab
-[PDF Lab Manual](https://drive.google.com/file/d/1DzFGTip7jdT5Q33OeuZrK28yvU95lOPe/view?usp=sharing)
 
-## Whirlybird_ws
-Whirlybird_ws
-The whirlybird workspace is the catkin workspace used to connect to the Whirlybirds via ROS. The Whirlybird workspace provided includes the necessary files to operate the whirlybird and also includes templates for lab assignments. It is necessary to clone this repository in order to complete the labs.
+# Jupyter Notebooks
 
-The whirlybird_ws directory is large and complex, but you will only need to modify the files in the sub-directories whirlbyird_controller and whirlybird_sim. These are contained in the directory 
+The Jupyter notebooks in this repository were developed by Dr. Robert Leishman at Air Force Institute of Technology.
 
-whirlybird_ws/src/
+They are designed to be run in google colab.
 
-The repository is hosted on BYU [MAGICC Lab's Gitlab server](https://gitlab.magiccvs.byu.edu/whirlybird/whirlybird_ws?). The README explains how to configure the workspace.
-
-## Support Files
-The support files are used to help rendering simulation in python easier. Read the comments in each file to see how to use it, or look in the Whirlbird Manual to see how the files are implemented.
-    - [Slider Input](https://drive.google.com/file/d/1GpNxenJV3nRUAQEmlEXJT7mhDP6qWJIw/view?usp=sharing)
-    - [Signal Generator](https://drive.google.com/file/d/1GoiYxUun2PyLZPWDcPSxUR35Bb80nRjJ/view?usp=sharing)
-    - [Simulation Plot](https://drive.google.com/file/d/1H2d8O5XlL7YMymf5HlUM6lvGfenWT5xf/view?usp=sharing)
-    - [PD Controller](https://drive.google.com/file/d/1GjIG1b3lM-ewPDqSEFot__S0sEUMEbEp/view?usp=sharing)
-    - [Step Function](https://drive.google.com/file/d/1GUrNX2Sio_NO5muddL8Wf_CiotXo9Wkv/view?usp=sharing)
-
-## ROS Tutorial
-For Students that would like to learn ROS more thoroughly, we have provided the following references to excellent ROS tutorials.
-    - [Official ROS Tutorials](http://wiki.ros.org/ROS/Tutorials)
-    - [A Gentile Introduction of ROS by Jason M O'Kane](https://cse.sc.edu/~jokane/agitr/)
-    - [Magicc Lab ROS Tutorials](https://wiki.magiccvs.byu.edu/#!ros_tutorials/intro.md)
