@@ -29,7 +29,7 @@ Ts = 0.01  # sample time for simulation
 t_plot = 0.1 # the plotting and animation is updated at this rate
 
 # saturation limits
-fmax = 100.0  # Max Force, N
+max_thrust = 10.0
 
 # dirty derivative parameters
 # sigma =   # cutoff freq for dirty derivative

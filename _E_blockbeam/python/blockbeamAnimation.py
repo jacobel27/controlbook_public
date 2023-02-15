@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import numpy as np 
-import blockbeamParam as P
+import blockBeamParam as P
 # if you are having difficulty with the graphics, 
 # try using one of the following backends. 
 # See https://matplotlib.org/stable/users/explain/backends.html

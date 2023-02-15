@@ -25,7 +25,7 @@ class VTOLDynamics:
 
         # gravity constant is well known, don't change.
         self.g = P.g
-        self.force_limit = P.fmax
+        self.force_limit = P.max_thrust
 
     def update(self, u):
         # This is the external method that takes the input u at time

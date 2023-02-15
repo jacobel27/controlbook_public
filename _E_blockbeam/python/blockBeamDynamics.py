@@ -1,5 +1,5 @@
 import numpy as np 
-import blockbeamParam as P
+import blockBeamParam as P
 
 class blockBeamDynamics:
     def __init__(self, alpha=0.0):
@@ -23,7 +23,7 @@ class blockBeamDynamics:
         self.Ts = P.Ts  
         
         # set saturation limits
-        self.force_limit = P.Fmax
+        self.force_limit = P.F_max
 
     def update(self, u):
         # This is the external method that takes the input u at time
