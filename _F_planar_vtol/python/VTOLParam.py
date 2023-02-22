@@ -29,14 +29,14 @@ Ts = 0.01  # sample time for simulation
 t_plot = 0.1 # the plotting and animation is updated at this rate
 
 # saturation limits
-max_thrust = 10.0
+fmax = 10.0
 
 # dirty derivative parameters
-# sigma =   # cutoff freq for dirty derivative
-# beta =  # dirty derivative gain
+sigma = 0.05   # cutoff freq for dirty derivative
+beta = 0.05 # dirty derivative gain
 
 # equilibrium force
-# Fe =
+Fe = g * (mc + 2*mr)
 
 # mixing matrix
 mixing = np.linalg.inv(np.array([[1.0, 1.0], [d, -d]]))

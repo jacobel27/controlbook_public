@@ -1,45 +1,50 @@
 import numpy as np 
+import random
 import VTOLParam as P
 
 class VTOLDynamics:
-    def __init__(self, alpha=0.0):
+    def __init__(self, alpha = 0.0):
         # Initial state conditions
         self.state = np.array([
-            [P.z0],        # initial lateral position
-            [P.h0],        # initial altitude
-            [P.theta0],    # initial roll angle
-            [P.zdot0],     # initial lateral velocity
-            [P.hdot0],     # initial climb rate
-            [P.thetadot0]  # initial roll rate
+            [P.z0],  # initial lateral position
+            [P.h0],  # initial altitude
+            [P.theta0],  # initial roll angle
+            [P.zdot0],  # initial lateral velocity
+            [P.hdot0],  # initial climb rate
+            [P.thetadot0],  # initial angular velocity
         ])
 
-        # simulation time step
+        #################################################
+        # The parameters for any physical system are never known exactly. Feedback
+        # systems need to be designed to be robust to this uncertainty. In the simulation
+        # we model uncertainty by changing the physical parameters by a uniform random variable
+        # that represents alpha*100 % of the parameter, i.e., alpha = 0.2, means that the parameter
+        # may change by up to 20%. A different parameter value is chosen every time the simulation
+        # is run. This solution does not require the "alpha" parameter to be defined unless we want
+        # to model uncertainty in our model. This is something that comes later in the book when
+        # doing feedback control.
+        #################################################
+
         self.Ts = P.Ts
-
-        self.mc = P.mc * (1.+alpha*(2.*np.random.rand()-1.)) # kg
-        self.mr = P.mr * (1.+alpha*(2.*np.random.rand()-1.)) # kg
-        self.Jc = P.Jc * (1.+alpha*(2.*np.random.rand()-1.)) # kg m^2
-        self.d = P.d * (1.+alpha*(2.*np.random.rand()-1.))  # m
-        self.mu = P.mu * (1.+alpha*(2.*np.random.rand()-1.)) # kg/s
-        self.F_wind = P.F_wind * (1.+alpha*(2.*np.random.rand()-1.))
-
-        # gravity constant is well known, don't change.
-        self.g = P.g
-        self.force_limit = P.max_thrust
+        self.mc = P.mc * (1+2*alpha*np.random.rand()-alpha)
+        self.mr = P.mr * (1+2*alpha*np.random.rand()-alpha)
+        self.Jc = P.Jc * (1+2*alpha*np.random.rand()-alpha)
+        self.d = P.d * (1+2*alpha*np.random.rand()-alpha)
+        self.mu = P.mu * (1+2*alpha*np.random.rand()-alpha)
+        self.F_wind = P.F_wind * (1+2*alpha*np.random.rand()-alpha)
 
     def update(self, u):
         # This is the external method that takes the input u at time
         # t and returns the output y at time t.
-        # saturate the input force
-        u = self.saturate(u, self.force_limit)
-
         self.rk4_step(u)  # propagate the state by one time sample
-        y = self.h()  # return the corresponding output
+
+        # separating out "y" by itself is currently not required, but will be in future homework
+        y = self.h()  # using a measurement model, return the corresponding output
 
         return y
 
     def f(self, state, u):
-        # Return xdot = f(x,u)
+        #  Return xdot = f(x,u)
         z = state[0,0]
         h = state[1,0]
         theta = state[2,0]
@@ -48,35 +53,20 @@ class VTOLDynamics:
         thetadot = state[5,0]
         fr = u[0,0]
         fl = u[1,0]
-
         # The equations of motion.
-        # M = np.array([[(self.mc + (2.0*self.mr)),0,0],
-        #               [0,(self.mc + (2.0*self.mr)),0],
-        #               [0,0,(self.Jc + (2.0*self.mr*(self.d**2)))]])
-        # C = np.array([[-(fr + fl)*np.sin(theta) - self.mu*zdot],
-        #               [-((self.mc + (2.0*self.mr)*self.g) + ((fr + fl)*np.cos(theta)))],
-        #               [self.d*(fr-fl)]])
-        # tmp = np.linalg.inv(M) @ C
-        # zddot = tmp[0,0]
-        # hddot = tmp[1,0]
-        # thetaddot = tmp[2,0]
-        
-        zddot = (-(fr + fl)*np.sin(theta) - self.mu*zdot + self.F_wind) / (self.mc + (2.0*self.mr))
-        hddot = (-((self.mc + (2.0*self.mr)*self.g) + ((fr + fl)*np.cos(theta)))) / (self.mc + (2.0*self.mr))
-        thetaddot = self.d*(fr-fl) / (self.Jc + (2.0*self.mr*(self.d**2)))
-
+        zddot = (-(fr + fl) * np.sin(theta) + -self.mu * zdot + self.F_wind) / (self.mc + 2.0 * self.mr)
+        hddot = (-(self.mc + 2.0 * self.mr) * P.g + (fr + fl) * np.cos(theta)) / (self.mc + 2.0 * self.mr)
+        thetaddot = self.d * (fr - fl) / (self.Jc + 2.0 * self.mr * (self.d ** 2))
         # build xdot and return
         xdot = np.array([[zdot], [hdot], [thetadot], [zddot], [hddot], [thetaddot]])
-
         return xdot
 
     def h(self):
-        # return y = h(x)
+        # return y=h(x)
         z = self.state[0,0]
         h = self.state[1,0]
         theta = self.state[2,0]
-        y = np.array([[z],[h],[theta]])
-
+        y = np.array([[z], [h], [theta]])
         return y
 
     def rk4_step(self, u):
@@ -87,10 +77,3 @@ class VTOLDynamics:
         F4 = self.f(self.state + self.Ts * F3, u)
         self.state += self.Ts / 6 * (F1 + 2 * F2 + 2 * F3 + F4)
 
-    def saturate(self, u, limit):
-        if abs(u[0,0]) > limit:
-            u[0,0] = limit*np.sign(u[0,0])
-        if abs(u[1,0]) > limit:
-            u[1,0] = limit*np.sign(u[1,0])
-
-        return u

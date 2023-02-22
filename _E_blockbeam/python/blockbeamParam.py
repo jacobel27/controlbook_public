@@ -25,11 +25,11 @@ Ts = 0.01  # sample time for simulation
 t_plot = 0.1  # the plotting and animation is updated at this rate
 
 # saturation limits
-F_max = 15.0  # Max Force, N
+Fmax = 15.0  # Max Force, N
 
 # dirty derivative parameters
-# sigma =   # cutoff freq for dirty derivative
-# beta =  # dirty derivative gain
+sigma = 0.05  # cutoff freq for dirty derivative
+beta = 0.05 # dirty derivative gain
 
 # equilibrium force when block is in center of beam
 # ze =
