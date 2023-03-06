@@ -28,7 +28,9 @@ m3 = 0.1905
 J3x = 0.0002222
 J3y = 0.0001956
 J3z = 0.000027
-km = g * (m1 * ell1 + m2 * ell2) / ellT  # need to find this experimentally for hardware
+ue = .5
+Fe = g * (m1 * ell1 + m2 * ell2) / (ellT)
+km = g * (m1 * ell1 + m2 * ell2) / (ellT*2*ue)  # need to find this experimentally for hardware
 
 
 # Simulation Parameters
