@@ -9,7 +9,7 @@ class hummingbirdDynamics:
             [P.phi0],  # roll angle
             [P.theta0],  # pitch angle
             [P.psi0],  # yaw angle
-            [P.phi0],  # roll rate
+            [P.phidot0],  # roll rate
             [P.thetadot0],  # pitch rate
             [P.psidot0],  # yaw rate
         ])

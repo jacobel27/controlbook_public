@@ -6,7 +6,7 @@
 
 // physical parameters of the system
 static struct {
-  float km=0.54;  // this will be different for every hummingbird
+  float km=0.397;  // this will be different for every hummingbird
   float m1=0.108862;
   float ell1=0.247;
   float m2=0.4717;
@@ -61,14 +61,14 @@ class CtrlLonPID {
     
     CtrlLonPID() {  
       // tuning parameters
-      tr_pitch = ; // rise time for pitch
-      zeta_pitch = ; // damping ratio for pitch
-      ki_pitch = ;  // integrator gain for pitch
+      float tr_pitch = 1.5; // rise time for pitch
+      float zeta_pitch = 0.707; // damping ratio for pitch
+      ki_pitch = 0;  // integrator gain for pitch
       // gain calculation
       b_theta = P.ellT / (P.m1 * P.ell1 * P.ell1 + P.m2 * P.ell2 * P.ell2 + P.J1y + P.J2y);
-      float wn_pitch = ;  // natural frequency for pitch
-      kp_pitch = ;  
-      kd_pitch = ; 
+      float wn_pitch = 2.2 / tr_pitch;  // natural frequency for pitch
+      kp_pitch = pow(wn_pitch, 2) / b_theta;  
+      kd_pitch = 2.0*zeta_pitch*wn_pitch / b_theta; 
       km = P.km; 
     }
 
@@ -93,9 +93,12 @@ class CtrlLonPID {
       kd_pitch = tune_kd.update(); 
       //ki_pitch = tune_ki.update();  
 
-      theta_dot = (state.theta - theta_d1) / Ts;
+      float theta_dot = (state.theta - theta_d1) / Ts;
 
-      float force = ; 
+      float error_theta = theta_ref - state.theta;
+      float F_tilde = kp_pitch * (error_theta) - kd_pitch * theta_dot;
+      float Ffl = (P.m1*P.ell1 + P.m2*P.ell2)*(P.g/P.ellT) * cos(state.theta);
+      float force = Ffl + F_tilde; 
       float torque = 0.0;
 
       // convert force and torque to pwm and send to motors

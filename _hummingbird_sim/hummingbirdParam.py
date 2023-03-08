@@ -28,9 +28,11 @@ m3 = 0.1905
 J3x = 0.0002222
 J3y = 0.0001956
 J3z = 0.000027
-ue = .5
+bTheta = ellT / (m1*ell1**2 + m2*ell2**2 + J1y + J2y)
+#ue = .38
 Fe = g * (m1 * ell1 + m2 * ell2) / (ellT)
-km = g * (m1 * ell1 + m2 * ell2) / (ellT*2*ue)  # need to find this experimentally for hardware
+#km = g * (m1 * ell1 + m2 * ell2) / (ellT*2*ue)  # need to find this experimentally for hardware
+km = 0.397
 
 
 # Simulation Parameters
