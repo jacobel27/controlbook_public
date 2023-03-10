@@ -1,15 +1,23 @@
 /**
- * \file AMT203.h
- * \author Daniel Koch <daniel.p.koch@gmail.com>
+ * \file sensors.h
+ * \author Randy Beard <beard@byu.edu>
  *
- * Arduino library for CUI AMT203 encoder operating in SPI mode
+ * class to manage sensors
  */
 
-#ifndef AMT203_H
-#define AMT203_H
+#ifndef SENSORS_H
+#define SENSORS_H
 
 #include <SPI.h>
 #include <stdint.h>
+
+
+// state structure contains current estimate of state
+struct Measurement {
+  float phi=0.0;
+  float theta=0.0;
+  float psi=0.0;
+};
 
 // commands
 #define AMT203_CMD_NOP_A5 0x00
@@ -30,6 +38,7 @@
 #define AMT203_POSITIONS 4096
 #define AMT203_DELAY_US 20
 
+// This class was written by Dan Koch
 class AMT203
 {
 public:
@@ -119,4 +128,67 @@ private:
   }
 };
 
-#endif // AMT203_H
+AMT203 encoder_yaw(PIN_ENCODER_YAW_CS);
+AMT203 encoder_pitch(PIN_ENCODER_PITCH_CS);
+AMT203 encoder_roll(PIN_ENCODER_ROLL_CS);     
+
+class SensorUtilities  {
+  public:
+    float roll;  // roll angle in radians
+    float pitch;  // pitch angle in radians
+    float yaw;  // yaw angle in radians
+    // sensor polling interval (ms)
+    unsigned long POLL_INTERVAL;
+    unsigned long previous_poll_time;    
+    // setup interface to encoders
+
+    SensorUtilities() {
+      POLL_INTERVAL = 4; // sensor poll interval in micro seconds
+    }
+
+    // the init function starts SPI communication and sets up reading on
+    // the encoders
+    void init() {
+      // set up encoders
+      SPI.begin();
+      encoder_yaw.init();
+      encoder_pitch.init();
+      encoder_roll.init();
+      
+      previous_poll_time = micros();
+      roll = (-1.0) * encoder_roll.read();
+      pitch = (-1.0) * encoder_pitch.read();
+      yaw = (-1.0) * encoder_yaw.read();
+    }
+
+    // The update function is used to read the encoders and place their
+    // values in the roll, pitch, and yaw fields
+    void update() {
+      unsigned long current_time = micros();
+      if ((current_time - previous_poll_time) >= POLL_INTERVAL) {
+        roll = (-1.0) * encoder_roll.read();
+        pitch = (-1.0) * encoder_pitch.read();
+        yaw = (-1.0) * encoder_yaw.read();
+        previous_poll_time = current_time;
+      }
+    }
+
+    // The zero function is called during calibration and defines
+    // The current roll, pitch, and yaw readings as "zero"
+    void zero() {
+      // turn off interrupts and watchdog, they mess with the code
+      detachInterrupt(digitalPinToInterrupt(ARM_SWITCH));
+      wdt_disable();
+      // zero the encoders
+      encoder_yaw.zero();
+      encoder_pitch.zero();
+      encoder_roll.zero();
+      // Reenable the interrupts
+      attachInterrupt(digitalPinToInterrupt(ARM_SWITCH), 
+                      arm_switch_ISR, 
+                      CHANGE);
+      wdt_enable(WDTO_60MS);
+    }
+};
+
+#endif 
