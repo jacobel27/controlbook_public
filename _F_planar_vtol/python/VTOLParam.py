@@ -30,6 +30,7 @@ t_plot = 0.1 # the plotting and animation is updated at this rate
 
 # saturation limits
 fmax = 10.0
+max_thrust = 100.0
 
 # dirty derivative parameters
 sigma = 0.05   # cutoff freq for dirty derivative

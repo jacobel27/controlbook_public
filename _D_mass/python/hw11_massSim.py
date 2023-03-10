@@ -22,7 +22,6 @@ while t < P.t_end:  # main simulation loop
     # Propagate dynamics in between plot samples
     t_next_plot = t + P.t_plot
     
-    
     # updates control and dynamics at faster simulation rate
     while t < t_next_plot:
         # set variables
@@ -38,9 +37,7 @@ while t < P.t_end:  # main simulation loop
     animation.update(mass.state)
     dataPlot.update(t, r, mass.state, u)
 
-    #plt.show()
-    t = t + P.t_plot  # advance time by t_plot
-    plt.pause(0.05)
+    plt.pause(P.t_plot)
 
 # Keeps the program from closing until the user presses a button.
 print('Press key to close')

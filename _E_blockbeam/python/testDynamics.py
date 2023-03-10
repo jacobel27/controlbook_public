@@ -1,7 +1,7 @@
 # use this file to test your dynamics file
 import numpy as np
-from blockBeamDynamics import blockBeamDynamics
-blockBeam = blockBeamDynamics()
+from blockbeamDynamics import blockbeamDynamics
+blockBeam = blockbeamDynamics()
 
 flag = True
 

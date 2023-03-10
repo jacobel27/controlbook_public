@@ -7,10 +7,8 @@ from dataPlotter import DataPlotter
 from hummingbirdDynamics import hummingbirdDynamics
 from ctrlPd import ctrlPD
 
-#fl_ref = SignalGenerator(amplitude=1.0, frequency=1.0)
-#fr_ref = SignalGenerator(amplitude=1.0, frequency=2.0)
-
 theta_ref = SignalGenerator(amplitude=np.deg2rad(15), frequency=0.05)
+psi_ref = SignalGenerator(amplitude=np.deg2rad(30), frequency=0.07)
 
 # instantiate the simulation plots and animation
 controller = ctrlPD()
@@ -24,7 +22,7 @@ y = hummingBird.h()
 while t < P.t_end:  # main simulation loop
     t_next_plot = t + P.t_plot
     while t < t_next_plot: 
-        ref = np.array([[0], [theta_ref.square(t)], [0]])
+        ref = np.array([[0], [theta_ref.square(t)], [psi_ref.square(t)]])
         u = controller.update(ref, y)
         y = hummingBird.update(u)
     

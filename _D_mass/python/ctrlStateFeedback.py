@@ -6,7 +6,7 @@ class ctrlStateFeedback:
     # dirty derivatives to estimate thetadot
     def __init__(self):
         #  tuning parameters
-        tr = 0.4
+        tr = 2.0
         zeta = 0.707
         # State Space Equations
         # xdot = A*x + B*u
@@ -18,7 +18,7 @@ class ctrlStateFeedback:
         C = np.array([[1.0, 0.0]])
         # gain calculation
         wn = 2.2 / tr  # natural frequency
-        des_char_poly = [1, 2 * zeta*wn, wn**2]
+        des_char_poly = [1, 2*zeta*wn, wn**2]
         des_poles = np.roots(des_char_poly)
         # Compute the gains if the system is controllable
         if np.linalg.matrix_rank(cnt.ctrb(A, B)) != 2:
