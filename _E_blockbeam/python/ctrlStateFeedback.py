@@ -26,8 +26,8 @@ class ctrlStateFeedback:
         # y = C*x
 
         A = np.zeros((4,4),dtype=np.float64)
-        A[0,2] = 1
-        A[1,3] = 1
+        A[0,2] = 1.
+        A[1,3] = 1.
         A[2,1] = -P.g
         A[3,0] = -(P.m1*P.g)/((P.m2*P.length**2/3.)+P.m1*ze**2)
         
@@ -59,9 +59,12 @@ class ctrlStateFeedback:
 
     def update(self, z_ref, x):
         z = x[0,0]
+        
+        x_tilde = x - np.array([[P.z0],[0],[0],[0]])
+        zr_tilde = z_ref - P.z0
         # Compute the state feedback controller
-        F_tilde = -self.K @ x + self.kr * z_ref
-        F_fl = P.m1 * P.g * (z / P.length) + P.m2 * P.g / 2.0
+        F_tilde = -self.K @ x_tilde + self.kr * zr_tilde
+        F_fl = P.m1 * P.g * (P.z0 / P.length) + P.m2 * P.g / 2.0
         F_unsat = F_tilde + F_fl
         tau = saturate(F_unsat[0][0], P.Fmax)
         return tau
