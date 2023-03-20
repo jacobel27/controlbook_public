@@ -11,9 +11,9 @@
 #include <math.h>
 
 struct {
-  float kp_phi = 
-  float kd_phi = 
-  float km = 
+  float kp_phi = 0.010164000000000003;
+  float kd_phi = 0.0019598040000000003;
+  float km = 0.32;
 } gains;
 
 #include "tuning_utilities.h"
@@ -87,15 +87,15 @@ class CtrlRollPD {
       float phi_dot = 3*phi_dot_d1 - 3*phi_dot_d2 + phi_dot_d3;
 
       // compute feedback linearized force      
-      float force_fl = 
+      float force_fl = (P.m1 * P.ell1 + P.m2 * P.ell2) * (P.g / P.ellT) * cos(sensors.pitch);
                          
       // compute error
-      float error_phi = 
+      float error_phi = phi_ref - phi;
 
       // roll control
-      float torque = 
+      float torque = gains.kp_phi*(error_phi) - gains.kd_phi*phi_dot;
                                             
-      float force = 
+      float force = force_fl;
       
       // convert force and torque to pwm and send to motors
       float left_pwm = (force+torque/P.d)/(2.0*gains.km);

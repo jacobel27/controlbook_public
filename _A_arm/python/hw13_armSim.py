@@ -46,7 +46,7 @@ while t < P.t_end:  # main simulation loop
     dataPlotObserver.update(t, arm.state, xhat, d, 0.0)
 
     # the pause causes the figure to display during simulation
-    plt.pause(0.0001)  
+    plt.pause(0.1)  
 
 # Keeps the program from closing until user presses a button.
 print('Press key to close')

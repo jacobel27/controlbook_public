@@ -11,7 +11,7 @@
 
 // physical parameters of the system
 static struct {
-  float km=0.39;
+  float km=0.31;
   float m1=.108862;
   float ell1=.247;
   float m2=.4717;
