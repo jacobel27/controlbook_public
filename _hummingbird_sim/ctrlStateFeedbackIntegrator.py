@@ -2,155 +2,109 @@ import numpy as np
 import control as cnt
 import hummingbirdParam as P
 
+
 class ctrlStateFeedbackIntegrator:
     def __init__(self):
         #--------------------------------------------------
         # State Feedback Control Design
         #--------------------------------------------------
-        tr_theta = 1.0
-        zeta_theta = 0.707
-        tr_psi = 1.0
-        M = 10.0
-        zeta_psi = 0.707
-        zeta_phi = 0.707
-        
-        # PD gains for longitudinal (altitude) control
-        wn_theta = 2.2/tr_theta
-        
-        # PD gains for lateral inner loop
-        tr_phi = tr_psi/M
-        wn_phi = 2.2/tr_phi
-        
-        wn_psi = 2.2/tr_psi
-        
-        # integrator poles
-        integrator_pole_lat = -wn_psi/2.0
-        integrator_pole_lon = -wn_theta/2.0
-        
-        A_lon = np.array([[0.0,1.0],[0.0,0.0]])
-        B_lon = np.array([[0.0],[P.bTheta]])
-        C_lon = np.array([[1.0, 0.0]])
-        Cr_lon = np.array([C_lon[0,:]])
-        
-        # form augmented system
-        A1_lon = np.vstack((np.hstack((A_lon, np.zeros((np.size(A_lon,1),1)))), 
-                        np.hstack((-Cr_lon, np.array([[0.0]]))) ))
-        B1_lon = np.vstack( (B_lon, 0.0) )
-    
-        
-        A_lat = np.array([[0.0,                            0.0, 1.0, 0.0],
-                          [0.0,                            0.0, 0.0, 1.0],
-                          [0.0,                            0.0, 0.0, 0.0],
-                          [((P.ellT*P.Fe)/(P.JT + P.J1z)), 0.0, 0.0, 0.0]])
-        
-        B_lat = np.array([[0.0],
-                          [0.0],
-                          [1.0/P.J1x],
-                          [0.0]])
-        
-        C_lat = np.array([[1.0, 0.0, 0.0, 0.0],
-                          [0.0, 1.0, 0.0, 0.0]])
-        
-        Cr_lat = np.array([C_lat[1,:]])
-        # form augmented system
-        A1_lat = np.vstack((
-                np.hstack((A_lat, np.zeros((4,1)))),
-                np.hstack((-Cr_lat, np.zeros((1,1))))))
-        B1_lat = np.vstack((B_lat, np.zeros((1,1))))
-        
-        
-        
-        # gain calculation longitudinal
-        des_char_poly_lon = np.convolve([1, 2 * zeta_theta * wn_theta, wn_theta**2],
-                                        np.poly([integrator_pole_lon]))
-        des_poles_lon = np.roots(des_char_poly_lon) 
-        
-        # Compute the gains if the system is controllable
-        if np.linalg.matrix_rank(cnt.ctrb(A1_lon, B1_lon)) != 3:
-            print(np.linalg.matrix_rank(cnt.ctrb(A1_lon, B1_lon)))
-            print("The longitudinal system is not controllable")
-        else:
-            K1_lon = cnt.acker(A1_lon, B1_lon, des_poles_lon)
-            self.K_lon = K1_lon[0][0:2]
-            self.ki_lon = K1_lon[0][2]
-        
-        
-        # gain calculation lateral
-        des_char_poly_lat = np.convolve(
-            np.convolve([1, 2 * zeta_phi * wn_phi, wn_phi**2],
-                        [1, 2 * zeta_psi * wn_psi, wn_psi**2]),
-                        np.poly([integrator_pole_lat])
-                        )
-        des_poles_lat = np.roots(des_char_poly_lat) 
-        
-        # Compute the gains if the system is controllable
-        if np.linalg.matrix_rank(cnt.ctrb(A1_lat, B1_lat)) != 5:
-            print(np.linalg.matrix_rank(cnt.ctrb(A1_lat, B1_lat)))
-            print("The lateral system is not controllable")
-        else:            
-            K1_lat = cnt.acker(A1_lat, B1_lat, des_poles_lat)
-            self.K_lat = K1_lat[0][0:4]
-            self.ki_lat = K1_lat[0][4]
-            
+        # tuning parameters
+        wn_th =        
+        zeta_th =   
+        pi_th =   
+        wn_psi =         
+        zeta_psi = 
+        wn_phi =         
+        zeta_phi =   
+        pi_psi =   
+        # hard code Ackerman's formula
+        alpha1_lon = 
+        alpha2_lon = 
+        alpha3_lon = 
+        self.k_th = 
+        self.k_thdot = 
+        self.ki_lon = 
+        alpha1_lat = 
+        alpha2_lat = 
+        alpha3_lat = 
+        alpha4_lat = 
+        alpha5_lat = 
+        b1 = 1/P.J1x
+        a1 = P.ellT*P.Fe/(P.JT+P.J1z)
+        self.k_phi = 
+        self.k_psi = 
+        self.k_phidot = 
+        self.k_psidot = 
+        self.ki_lat = 
         # print gains to terminal
-        print('K_lon: ', self.K_lon)
-        print('ki_lon: ', self.ki_lon)
-        print('K_lat: ', self.K_lat)
-        print('ki_lat: ', self.ki_lat)
-        
-        self.integrator_lon = 0.0  # integrator
-        self.error_d1_lon = 0.0  # error signal delayed by 1 sample
-        
-        self.integrator_lat = 0.0  # integrator
-        self.error_d1_lat = 0.0  # error signal delayed by 1 sample
+        print('K_lon: [', self.k_th, ',', self.k_thdot, ']')
+        print('ki_lon: ', self.ki_lon)         
+        print('K_lat: [', self.k_phi, ',', self.k_psi, ',', self.k_phidot, ',', self.k_psidot, ']')
+        print('ki_lat: ', self.ki_lat)        
+        #--------------------------------------------------
+        # saturation limits
+        theta_max = 30.0 * np.pi / 180.0  # Max theta, rads
+        #--------------------------------------------------
+        self.Ts = P.Ts
+        sigma = 0.05  # cutoff freq for dirty derivative
+        self.beta = (2 * sigma - self.Ts) / (2 * sigma + self.Ts)
+        self.phi_d1 = 0.
+        self.phi_dot = 0.
+        self.theta_d1 = 0.
+        self.theta_dot = 0.
+        self.psi_d1 = 0.
+        self.psi_dot = 0.        
+        # variables to implement integrator
+        self.integrator_th = 0.0  
+        self.error_th_d1 = 0.0  
+        self.integrator_psi = 0.0  
+        self.error_psi_d1 = 0.0 
 
-    def update(self, reference, x):
-        
-        phi,theta,psi,phidot,thetadot,psidot = x[:,0]
-        
-        x_lon = np.array([[theta],[thetadot]])
-        x_lat = np.array([[phi],[psi],[phidot],[psidot]])
-        
-        phi_r = reference[0][0]
-        theta_r = reference[1][0]
-        psi_r = reference[2][0]  
-        
-        # altitude
-        error_lon = theta_r - theta
-        self.integrator_lon = self.integrator_lon \
-                          + (P.Ts / 2.0) * (error_lon + self.error_d1_lon)
-        self.error_d1_lon = error_lon
-        
-        # position
-        error_lat = psi_r - psi
-        self.integrator_lat = self.integrator_lat \
-                          + (P.Ts / 2.0) * (error_lat + self.error_d1_lat)
-        self.error_d1_lat = error_lat
-        
-        
-        # longitudinal
-        # compute the linearized torque using PID
-        Ffl = (P.m1*P.ell1 + P.m2*P.ell2)*(P.g/P.ellT) * np.cos(theta)
-        # OR USE P.Fe directly??? 
-        
-        
-        # Compute the state feedback controller
-        F_tilde = -self.K_lon @ x_lon - self.ki_lon*self.integrator_lon
-        F = F_tilde[0] + Ffl
-        
-        tau_tilde = -self.K_lat @ x_lat - self.ki_lat*self.integrator_lat
-        tau = tau_tilde[0]
-        
-        ul = 1/(2*P.km) * (F+tau/P.d)
-        ur = 1/(2*P.km) * (F-tau/P.d)
+    def update(self, r, y):
+        theta_ref = r[0][0]
+        psi_ref = r[1][0]
+        phi = y[0][0]
+        theta = y[1][0]
+        psi = y[2][0]
+        force_equilibrium =     
+        # update differentiators
+        self.phi_dot = 
+        self.phi_d1 = 
+        self.theta_dot = 
+        self.theta_d1 = 
+        self.psi_dot =   
+        self.psi_d1 = 
+        # integrate error
+        error_th = theta_ref - theta
+        error_psi = psi_ref - psi
+        self.integrator_th = 
+        self.integrator_psi = 
+        self.error_th_d1 = error_th
+        self.error_psi_d1 = error_psi
 
-        # return ul and ur (PWM)
-        return np.array([[ul],[ur]])
+        # longitudinal control
+        force_unsat = 
+        force = saturate(force_unsat, -P.force_max, P.force_max)
+        # lateral control
+        torque_unsat = 
+        torque = saturate(torque_unsat, -P.torque_max, P.torque_max)
+        # convert force and torque to pwm signals
+        pwm = np.array([[force + torque / P.d],               # u_left
+                      [force - torque / P.d]]) / (2 * P.km)   # r_right          
+        pwm = saturate(pwm, 0, 1)
+        return pwm, np.array([[0], [theta_ref], [psi_ref]])
 
 
-def saturate(u, limit):
-    if abs(u) > limit:
-        u = limit * np.sign(u)
+def saturate(u, low_limit, up_limit):
+    if isinstance(u, float) is True:
+        if u > up_limit:
+            u = up_limit
+        if u < low_limit:
+            u = low_limit
+    else:
+        for i in range(0, u.shape[0]):
+            if u[i][0] > up_limit:
+                u[i][0] = up_limit
+            if u[i][0] < low_limit:
+                u[i][0] = low_limit
     return u
-
-
