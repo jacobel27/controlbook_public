@@ -1,40 +1,78 @@
+import rodMassParam as P
+import loopshapeRodMass as L
 import numpy as np
-from control import c2d, tf
-import armParam as P
-import loopShaping as L
+from control import tf, c2d, tf2ss
+#from discreteFilter import discreteFilter
+#from transferFunction import transferFunction
 
-class ctrlLoopshape:
+class ctrlLoop:
     def __init__(self, method="state_space"):
         if method == "state_space":
             self.prefilter = transferFunction(L.F_num, L.F_den, P.Ts)
             self.control = transferFunction(L.C_num, L.C_den, P.Ts)
+
         elif method == "digital_filter":
-            self.prefilter = digitalFilter(L.F.num, L.F.den, P.Ts)
-            self.control = digitalFilter(L.C.num, L.C.den, P.Ts)
+            self.prefilter = discreteFilter(L.F.num, L.F.den, P.Ts)
+            self.control = discreteFilter(L.C.num, L.C.den, P.Ts)
+
+        self.limit = P.tau_max  # Maximum torque
+        self.Ts = P.Ts  # sample rate of
         self.method = method
 
     def update(self, theta_r, y):
-        theta = y[0][0]
-        # prefilter the reference
+        theta_m = y
+        # prefilter
         theta_r_filtered = self.prefilter.update(theta_r)
-         # filtered error signal
-        error = theta_r_filtered - theta
+        # filtered error signal
+        error = theta_r_filtered - theta_m
         # update controller
         tau_tilde = self.control.update(error)
-        # compute feedback linearization torque tau_fl
-        tau_fl = P.m * P.g * (P.ell / 2.0) * np.cos(theta)
+        # compute equilibrium torque tau_e
+        tau_e = P.m * P.g * P.ell
         # compute total torque
-        tau = saturate(tau_fl + tau_tilde, P.tau_max)
+        tau = self.saturate(tau_e + tau_tilde)
         return tau
 
-def saturate(u, limit):
-    if abs(u) > limit:
-        u = limit * np.sign(u)
-    return u
+    def saturate(self,u):
+        if abs(u) > self.limit:
+            u = self.limit*np.sign(u)
+        return u
+    
 
+class discreteFilter:
+    def __init__(self, num, den, Ts):
+        self.Ts = Ts
+        sys = tf(num, den)
+        sys_d = c2d(sys, Ts, method='tustin')
+        self.den_d = sys_d.den[0][0]
+        self.num_d = sys_d.num[0][0]
+        self.prev_filt_output = np.zeros(len(self.num_d)-1)
+        self.prev_filt_input = np.zeros(len(self.den_d))
+
+    def update(self, u):
+        '''
+            Discrete filter implementation for loopshaping controllers
+        '''
+        # update vector with filter inputs (u)
+        self.prev_filt_input = np.hstack(([u], self.prev_filt_input[0:-1]))
+        # use filter coefficients to calculate new output (y)
+        y = self.num_d @ self.prev_filt_input - self.den_d[1:] @ self.prev_filt_output
+        # update vector with filter outputs
+        self.prev_filt_output = np.hstack(([y], self.prev_filt_output[0:-1]))
+        return y
+    
 
 class transferFunction:
     def __init__(self, num, den, Ts):
+        self.Ts = Ts
+        # sys = tf(num[0], den[0])
+        # sys_ss = tf2ss(sys)
+        # self.A = sys_ss.A
+        # self.B = sys_ss.B
+        # self.C = sys_ss.C
+        # self.D = sys_ss.A
+        # n = den.shape[1]
+        
         # expects num and den to be numpy arrays of
         # shape (1,m+1) and (1,n+1)
         m = num.shape[1]
@@ -86,23 +124,3 @@ class transferFunction:
         F4 = self.f(self.state + self.Ts * F3, u)
         self.state += self.Ts / 6 * (F1 + 2 * F2 + 2 * F3 + F4)
         return self.state
-    
-
-class digitalFilter:
-    def __init__(self, num, den, Ts):
-        self.Ts = Ts
-        sys = tf(num[0], den[0])
-        sys_d = c2d(sys, Ts, method='tustin')
-        self.den_d = sys_d.den[0][0]
-        self.num_d = sys_d.num[0][0]
-        self.prev_filt_output = np.zeros(len(self.num_d)-1)
-        self.prev_filt_input = np.zeros(len(self.den_d))
-
-    def update(self, u):
-        # update vector with filter inputs (u)
-        self.prev_filt_input = np.hstack(([u], self.prev_filt_input[0:-1]))
-        # use filter coefficients to calculate new output (y)
-        y = self.num_d @ self.prev_filt_input - self.den_d[1:] @ self.prev_filt_output
-        # update vector with filter outputs
-        self.prev_filt_output = np.hstack(([y], self.prev_filt_output[0:-1]))
-        return y

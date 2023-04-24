@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from control import tf, step_response, bode, tf2ss, margin, mag2db
 import numpy as np
 import hw16 as P16
-import loopshape_tools as lt
+import loopshape_tools as ls
 
 # flag to define if using dB or absolute scale for M(omega)
 dB_flag = P16.dB_flag
@@ -16,31 +16,16 @@ Plant = P_in
 #########################################
 #   Control Design
 #########################################
-C = tf([1], [1])
 
-# Proportional control: correct for negative sign in plant
-K_neg = lt.get_control_proportional(-1)
-C = C*K_neg
+C = tf([1], [1]) * ls.proportional(kp=-1.) # correct for negative sign in plant
+C = C * ls.proportional(kp=800.0) # set cross-over to 40
+C = C * ls.lead(w=40., M=15.) # increase phase margin
 
-#  phase lead: increase PM (stability)
-w_max = 40 #location of maximum frequency bump
-phi_max = 60*np.pi/180
-M = (1 + np.sin(phi_max))/(1 - np.sin(phi_max))  # lead ratio
-Lead = lt.get_control_lead(w_max, M)
-C = C*Lead
-
-# find gain to set crossover at w_max
-mag, phase, omega = bode(Plant*C*Lead, dB=False,
-                             omega=[w_max], plot=False)
-
-# Proportional control: correct for negative sign in plant
-K = lt.get_control_proportional(1/mag[0])
-C = C*K
-
-##############################################
-#  Convert Controller to State Space Equations
-##############################################
-C_ss = tf2ss(C)  # convert to state space
+###########################################################
+# Extracting coefficients for controller
+###########################################################
+C_num = np.asarray(C.num[0])
+C_den = np.asarray(C.den[0])
 
 if __name__=="__main__":
     # calculate bode plot and gain and phase margin
@@ -63,9 +48,12 @@ if __name__=="__main__":
     #   Define Design Specifications
     #########################################
     # ----------- noise specification --------
-    omega_n = 200  # attenuate noise above this frequency
-    gamma_n = 0.1  # attenuate noise by this amount
-    lt.add_spec_noise(gamma_n, omega_n, dB_flag)
+    ls.spec_noise(gamma_n=0.1, omega_n=200., dB_flag=dB_flag)
+
+
+    #########################################
+    #  Create the plots
+    #########################################
 
     ## plot the effect of adding the new compensator terms
     mag, phase, omega = bode(Plant * C, dB=dB_flag,
